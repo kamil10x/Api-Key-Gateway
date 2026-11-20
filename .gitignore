@@ -1,0 +1,44 @@
+# Python bytecode & packaging
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+wheels/
+
+# Virtual environments
+.venv/
+.venv-spike/
+venv/
+env/
+
+# Tooling & test caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Environment & secrets (never commit real keys or peppers)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local database / Redis artifacts
+*.rdb
+*.aof
+pgdata/
+
+# IDEs & OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
