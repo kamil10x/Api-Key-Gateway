@@ -1,0 +1,8 @@
+# Runtime dependencies (pinned to versions verified to install together on 2026-11-20).
+# Source of truth for ranges is pyproject.toml; this file pins exact versions for reproducible builds.
+fastapi==0.165.0
+uvicorn[standard]==0.54.0
+SQLAlchemy==2.1.9
+alembic==1.20.1
+psycopg[binary]==3.3.9
+redis==8.1.0
