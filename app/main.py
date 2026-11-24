@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-app = FastAPI(title="Quota Gateway")
+app = FastAPI(title="API-key Gateway")
 
 
 @app.get("/healthz")
