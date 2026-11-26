@@ -26,9 +26,7 @@ class ApiKey(Base):
     prefix: Mapped[str] = mapped_column(String(16), unique=True)
     key_hash: Mapped[str] = mapped_column(String(64), unique=True)
     label: Mapped[str | None] = mapped_column(String(128))
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     # Rotation: the old key gets expires_at = now + ROTATION_GRACE_SECONDS.
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

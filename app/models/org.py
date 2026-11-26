@@ -23,9 +23,7 @@ class Org(Base):
         ForeignKey("plans.id", ondelete="RESTRICT"), index=True
     )
     is_active: Mapped[bool] = mapped_column(Boolean, server_default=true())
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     plan: Mapped[Plan] = relationship(back_populates="orgs")
     keys: Mapped[list[ApiKey]] = relationship(back_populates="org")
