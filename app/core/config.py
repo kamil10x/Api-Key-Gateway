@@ -8,4 +8,5 @@ class Settings(BaseSettings):
     admin_token: str
     rotation_grace_seconds: int = 86400
 
+
 settings = Settings()  # type: ignore[call-arg]
