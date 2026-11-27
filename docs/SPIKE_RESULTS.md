@@ -175,6 +175,15 @@ Expect `ALL PASS` from `spike.py`, exactly 100 / 300 admitted in the Lua rows, a
 | Concurrent replay violations (4.5) | 0 of 200 | **0 of 200** |
 | `kill -9` (4.6), one run | `always`: counter - acked 0 to +7 over 3 runs | `no`: 7,742 acknowledged, counter 0 (all lost). `everysec`: difference 0. `always`: acknowledged 6,464, counter 6,467, **difference +3** (at most 8 in flight) |
 
+
+**D12- results **
+
+valid key     -> 200 {'text': 'Premature optimization is the root of all evil.', 'author': 'Donald Knuth'}
+bad key       -> 401 {'error': 'invalid_api_key', 'message': 'Missing or invalid API key'}
+no header     -> 401 {'error': 'invalid_api_key', 'message': 'Missing or invalid API key'}
+baseline (500 sequential): p50=9.7ms p95=11.6ms p99=12.7ms ~103 req/s
+
+
 **What your run shows.**
 1. **Exactness reproduced on different hardware and a different Redis version.** Every exact-count result matched the reference run: the Lua script admitted exactly the allowed number in all scenarios, including across processes, while the naive limiter exceeded the limit in all 10 runs. These results do not depend on speed, which is why they transfer.
 2. **The durability setting has a visible latency cost on your machine.** With AOF `always` one `admit` call had p50 0.888 ms, p95 2.603 ms, p99 5.026 ms and a worst case of 37 ms, against 0.135 / 0.291 / 0.858 / 13.2 ms without AOF (about 7x at p50 and 9x at p95). The reference sandbox showed only about 4x and stayed sub-millisecond, so **the earlier claim that this cost is negligible does not hold in general**: it depends on the disk. A single call at p95 2.6 ms already uses about a quarter of the 10 ms p95 budget before any HTTP, authentication, or Postgres work. The test used one sequential client; at 200 rps requests arrive about 5 ms apart, so there is little chance for concurrent writes to share one fsync and each request will mostly pay its own.
