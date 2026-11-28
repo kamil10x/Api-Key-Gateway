@@ -3,7 +3,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from app.core.api_auth import AuthContext, authenticate_api_key
+from app.core.admission import admit_request
+from app.core.limiter import Admission
 
 router = APIRouter(prefix="/v1", tags=["quotes"])
 
@@ -15,5 +16,5 @@ _QUOTES = [
 
 
 @router.get("/quote")
-def get_quote(_ctx: Annotated[AuthContext, Depends(authenticate_api_key)]) -> dict[str, str]:
+def get_quote(_adm: Annotated[Admission, Depends(admit_request)]) -> dict[str, str]:
     return random.choice(_QUOTES)  # noqa: S311

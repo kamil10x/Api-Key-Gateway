@@ -1,18 +1,27 @@
+from typing import Any
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 
 class AppError(Exception):
-    """Domain error rendered as {"error": <code>, "message": <text>}."""
+    """Domain error rendered as {"error": <code>, "message": <text>, **extra}."""
 
     status_code = 500
 
-    def __init__(self, code: str, message: str, headers: dict[str, str] | None = None) -> None:
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        headers: dict[str, str] | None = None,
+        extra: dict[str, Any] | None = None,
+    ) -> None:
         super().__init__(message)
         self.code = code
         self.message = message
         self.headers = headers
+        self.extra = extra or {}
 
 
 class UnauthorizedError(AppError):
@@ -31,12 +40,20 @@ class ConflictError(AppError):
     status_code = 409
 
 
+class TooManyRequestsError(AppError):
+    status_code = 429
+
+
+class ServiceUnavailableError(AppError):
+    status_code = 503
+
+
 def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(AppError)
     async def _app_error(_: Request, exc: AppError) -> JSONResponse:
         return JSONResponse(
             status_code=exc.status_code,
-            content={"error": exc.code, "message": exc.message},
+            content={"error": exc.code, "message": exc.message, **exc.extra},
             headers=exc.headers,
         )
 

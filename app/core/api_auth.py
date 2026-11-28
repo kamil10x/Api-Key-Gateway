@@ -8,10 +8,11 @@ from fastapi import Depends, Header
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.core.errors import ForbiddenError, UnauthorizedError
+from app.core.errors import AppError, ForbiddenError, UnauthorizedError
 from app.core.keys import hash_secret, parse_key, verify_key
+from app.core.limiter import Limits
 from app.data.db import get_db
-from app.models import ApiKey, Org
+from app.models import ApiKey, Org, Plan
 
 DbSession = Annotated[Session, Depends(get_db)]
 
@@ -21,6 +22,7 @@ class AuthContext:
     org_id: uuid.UUID
     key_id: uuid.UUID
     plan_id: uuid.UUID
+    limits: Limits
 
 
 @lru_cache(maxsize=1)
@@ -71,4 +73,17 @@ def authenticate_api_key(
     if org is None or not org.is_active:
         raise ForbiddenError("org_inactive", "Organization is disabled")
 
-    return AuthContext(org_id=org.id, key_id=key.id, plan_id=org.plan_id)
+    plan = db.get(Plan, org.plan_id)
+    if plan is None:  # FK is RESTRICT, so this should be impossible
+        raise AppError("internal_error", "Plan not found")
+
+    return AuthContext(
+        org_id=org.id,
+        key_id=key.id,
+        plan_id=org.plan_id,
+        limits=Limits(
+            rate_per_second=plan.rate_limit_per_second,
+            burst=plan.burst,
+            monthly_quota=plan.monthly_quota,
+        ),
+    )

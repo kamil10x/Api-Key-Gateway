@@ -13,9 +13,16 @@ with httpx.Client(base_url=BASE, timeout=10) as c:
     plan = c.post(
         "/admin/plans",
         headers=ADMIN,
-        json={"name": f"smoke-{suffix}", "rate_limit_per_second": 20, "burst": 40, "monthly_quota": 100000},
+        json={
+            "name": f"smoke-{suffix}",
+            "rate_limit_per_second": 20,
+            "burst": 40,
+            "monthly_quota": 100000,
+        },
     ).json()
-    org = c.post("/admin/orgs", headers=ADMIN, json={"name": f"smoke-{suffix}", "plan_id": plan["id"]}).json()
+    org = c.post(
+        "/admin/orgs", headers=ADMIN, json={"name": f"smoke-{suffix}", "plan_id": plan["id"]}
+    ).json()
     key = c.post(f"/admin/orgs/{org['id']}/keys", headers=ADMIN).json()["api_key"]
     good = {"Authorization": f"Bearer {key}"}
 
